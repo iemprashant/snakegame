@@ -4,6 +4,7 @@ function init(){
 	pen = canvas.getContext('2d');
 	cellsize = 66;
 	score =0;
+	collison=false;
 	game_over=false;
 
 	//food object
@@ -13,6 +14,19 @@ function init(){
 	Trophy=new Image();
 	Trophy.src="Assets/trophy.png";
 	food=getRandomFood();
+	//audio
+	const dead= new Audio();
+	const eat= new Audio();
+	const up = new Audio();
+	const left = new Audio();
+	const right = new Audio();
+	const down = new Audio();
+	dead.src = "audio/dead.mp3";
+	eat.src = "audio/eat.mp3";
+	up.src = "audio/up.mp3";
+	left.src = "audio/left.mp3";
+	right.src = "audio/right.mp3";
+	down.src = "audio/down.mp3";
 	snake = {
 		init_len:1,
 		color:"blue",
@@ -64,12 +78,19 @@ function init(){
 
 			
 			this.cells.unshift({x:nextX,y:nextY});
-
+			//colision
+			for(var i=1; i < this.cells.length; i++){
+				if(nextX == this.cells[i].x && nextY == this.cells[i].y){
+					dead.play();
+					collison = true;
+				}
+			}
 			//logic to prevent snake from going outside
 			var lastx = Math.round(W/cellsize);
 			var lasty = Math.round(H/cellsize);
 			if(this.cells[0].x<0 || this.cells[0].y<0 || this.cells[0].x > lastx || this.cells[0].y >lasty){
 				game_over=true;
+				dead.play();
 			}
 		}
 
@@ -77,20 +98,27 @@ function init(){
 	
 	snake.createSnake();
 	function keyPressed(e){
-		if(e.key=="ArrowRight"){
+		console.log(e);
+		if(e.key=="ArrowRight" && snake.direction != ""){
+			right.play();
 			snake.direction="right";
 		}
-		else if(e.key=="ArrowLeft"){
+		else if(e.key=="ArrowLeft"&& snake.direction != "right"){
+			left.play();
 			snake.direction="left";
 		}
-		else if(e.key=="ArrowDown"){
+		else if(e.key=="ArrowDown"&& snake.direction != "up"){
+			down.play();
 			snake.direction="down";
 		}
-		else if(e.key=="ArrowUp"){
+		else if(e.key=="ArrowUp"&& snake.direction != "down"){
+			up.play();
 			snake.direction="up";
 		}
+		
 	};
 	document.addEventListener('keydown',keyPressed);
+	document.addEventListener('touchmove',keyPressed);
 };
 function draw(){
 	pen.clearRect(0,0,W,H);
@@ -117,8 +145,10 @@ function getRandomFood(){
 	return food
 };
 function gameloop(){
-	if(game_over==true){
+	if(game_over==true || collison == true){
 		clearInterval(f);
+		
+		dead.play();
 		alert("Gameover");
 	}
 	draw();
@@ -127,7 +157,7 @@ function gameloop(){
 
 init();
 
-var f = setInterval(gameloop,100);
+var f = setInterval(gameloop,150);
 
 
 
