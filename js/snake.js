@@ -3,7 +3,7 @@ function init(){
 	W = H = canvas.width = canvas.height = 1000;
 	pen = canvas.getContext('2d');
 	cellsize = 66;
-	score = this.cells.length-1;
+	score =0;
 	game_over=false;
 
 	//food object
